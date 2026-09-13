@@ -37,7 +37,7 @@ section{padding:88px 0}.head{display:flex;justify-content:space-between;gap:28px
 <input class="choice-input flavour-check" type="checkbox" id="f3" value="yogurt" disabled><label class="flavour-choice" for="f3"><strong data-zh="希臘乳酪" data-en="Greek Yogurt">希臘乳酪</strong><small>Greek Yogurt</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f4" value="oreo" disabled><label class="flavour-choice" for="f4"><strong data-zh="奧利奧曲奇" data-en="Oreo Cookie">奧利奧曲奇</strong><small>Oreo Cookie</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f5" value="matcha" disabled><label class="flavour-choice" for="f5"><strong data-zh="抹茶" data-en="Matcha">抹茶</strong><small>Matcha</small></label>
-<input class="choice-input flavour-check" type="checkbox" id="f6" value="caramel_biscuit" disabled><label class="flavour-choice" for="f6"><strong data-zh="焦糖脆餅" data-en="Caramel Biscuit">焦糖脆餅</strong><small>Caramel Biscuit</small></label>
+<input class="choice-input flavour-check" type="checkbox" id="f6" value="caramel_biscuit" disabled><label class="flavour-choice" for="f6"><strong data-zh="焦糖脆餅" data-en="Caramel Biscoff">焦糖脆餅</strong><small>Caramel Biscoff</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f7" value="tofu" disabled><label class="flavour-choice" for="f7"><strong data-zh="豆腐" data-en="Tofu">豆腐</strong><small>Tofu</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f8" value="seasonal" disabled><label class="flavour-choice" for="f8"><strong data-zh="季節限定" data-en="Seasonal Special">季節限定</strong><small>Seasonal Special</small></label>
 </div></div>
@@ -52,7 +52,7 @@ section{padding:88px 0}.head{display:flex;justify-content:space-between;gap:28px
 let currentLang=localStorage.getItem('edenlyLang')||'zh';
 const LEAD_MINUTES=60;
 const sizes={500:{price:248,max:2},750:{price:348,max:3},1000:{price:438,max:4}};
-const flavours={vanilla:{zh:'雲呢拿',en:'Vanilla'},pistachio:{zh:'開心果',en:'Pistachio'},yogurt:{zh:'希臘乳酪',en:'Greek Yogurt'},oreo:{zh:'奧利奧曲奇',en:'Oreo Cookie'},matcha:{zh:'抹茶',en:'Matcha'},caramel_biscuit:{zh:'焦糖脆餅',en:'Caramel Biscuit'},tofu:{zh:'豆腐',en:'Tofu'},seasonal:{zh:'季節限定',en:'Seasonal Special'}};
+const flavours={vanilla:{zh:'雲呢拿',en:'Vanilla'},pistachio:{zh:'開心果',en:'Pistachio'},yogurt:{zh:'希臘乳酪',en:'Greek Yogurt'},oreo:{zh:'奧利奧曲奇',en:'Oreo Cookie'},matcha:{zh:'抹茶',en:'Matcha'},caramel_biscuit:{zh:'焦糖脆餅',en:'Caramel Biscoff'},tofu:{zh:'豆腐',en:'Tofu'},seasonal:{zh:'季節限定',en:'Seasonal Special'}};
 const sizeRadios=[...document.querySelectorAll('.size-radio')];
 const flavourChecks=[...document.querySelectorAll('.flavour-check')];
 const pickupDate=document.getElementById('pickupDate');
