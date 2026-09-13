@@ -14,29 +14,18 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
           original=s
-
           marker='.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}'
           addition='#flavours .head{display:block}#flavours .head p{max-width:none;margin-top:14px}#flavours h2{font-size:clamp(38px,4.2vw,60px)}@media(min-width:1050px){#flavours h2,#flavours .head p{white-space:nowrap}}'
           if addition not in s:
               s=s.replace(marker,addition+marker,1)
-
-          pattern=r'\.orb\{position:absolute;right:-20px;top:-20px;width:130px;height:130px;border-radius:50%;background:linear-gradient\(140deg,#244b3c,#8aaa8e\)\}\.fl:nth-child\(2\) \.orb\{background:linear-gradient\(140deg,#85a96f,#dce8c3\)\}\.fl:nth-child\(3\) \.orb\{background:linear-gradient\(140deg,#dcbeb7,#f6e9e3\)\}\.fl:nth-child\(4\) \.orb\{background:linear-gradient\(140deg,#ddd8cb,#bdb5a8\)\}\.fl:nth-child\(5\) \.orb\{background:linear-gradient\(140deg,#b88d46,#e4c98f\)\}\.fl:nth-child\(6\) \.orb\{background:linear-gradient\(140deg,#6d5449,#b99d8a\)\}'
-          replacement='''.orb{position:absolute;right:-20px;top:-20px;width:130px;height:130px;border-radius:50%;background:linear-gradient(140deg,#e5cf91,#fbf3d4)}
-.fl:nth-child(2) .orb{background:linear-gradient(140deg,#8eac69,#d4e5b0)}
-.fl:nth-child(3) .orb{background:linear-gradient(140deg,#cbbbd3,#eee5f0)}
-.fl:nth-child(4) .orb{background:linear-gradient(140deg,#67635f,#c8c3bd)}
-.fl:nth-child(5) .orb{background:linear-gradient(140deg,#4f7138,#9fbd72)}
-.fl:nth-child(6) .orb{background:linear-gradient(140deg,#9e603b,#e2ad73)}
-.fl:nth-child(7) .orb{background:linear-gradient(140deg,#c7b18e,#efe4cf)}
-.fl:nth-child(8) .orb{background:linear-gradient(140deg,#d98695,#efc56f)}'''
-          s,n=re.subn(pattern,replacement,s,count=1)
-          if n!=1:
-              raise SystemExit('Could not replace flavour colour block')
-
+          old='.orb{position:absolute;right:-20px;top:-20px;width:130px;height:130px;border-radius:50%;background:linear-gradient(140deg,#244b3c,#8aaa8e)}.fl:nth-child(2) .orb{background:linear-gradient(140deg,#85a96f,#dce8c3)}.fl:nth-child(3) .orb{background:linear-gradient(140deg,#dcbeb7,#f6e9e3)}.fl:nth-child(4) .orb{background:linear-gradient(140deg,#ddd8cb,#bdb5a8)}.fl:nth-child(5) .orb{background:linear-gradient(140deg,#b88d46,#e4c98f)}.fl:nth-child(6) .orb{background:linear-gradient(140deg,#6d5449,#b99d8a)}'
+          new='.orb{position:absolute;right:-20px;top:-20px;width:130px;height:130px;border-radius:50%;background:linear-gradient(140deg,#e5cf91,#fbf3d4)}.fl:nth-child(2) .orb{background:linear-gradient(140deg,#8eac69,#d4e5b0)}.fl:nth-child(3) .orb{background:linear-gradient(140deg,#cbbbd3,#eee5f0)}.fl:nth-child(4) .orb{background:linear-gradient(140deg,#67635f,#c8c3bd)}.fl:nth-child(5) .orb{background:linear-gradient(140deg,#4f7138,#9fbd72)}.fl:nth-child(6) .orb{background:linear-gradient(140deg,#9e603b,#e2ad73)}.fl:nth-child(7) .orb{background:linear-gradient(140deg,#c7b18e,#efe4cf)}.fl:nth-child(8) .orb{background:linear-gradient(140deg,#d98695,#efc56f)}'
+          if old not in s:
+              raise SystemExit('Could not find current flavour colour block')
+          s=s.replace(old,new,1)
           if s==original:
               raise SystemExit('No changes made')
           p.write_text(s,encoding='utf-8')
