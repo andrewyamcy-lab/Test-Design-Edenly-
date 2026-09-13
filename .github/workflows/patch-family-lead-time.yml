@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Change pickup lead time to two hours
+      - name: Finalize two-hour pickup lead time
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -20,6 +20,7 @@ jobs:
           b = b.replace(b'const LEAD_MINUTES=60;', b'const LEAD_MINUTES=120;')
           b = b.replace(b'1 hour', b'2 hours')
           b = b.replace('1 小時'.encode('utf-8'), '2 小時'.encode('utf-8'))
+          b = b.replace(b"2 hours's notice", b"2 hours' notice")
           if b == original:
               raise SystemExit('No changes made')
           p.write_bytes(b)
@@ -29,5 +30,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add family.html
-          git commit -m "Change family pickup lead time to two hours"
+          git commit -m "Finalize two-hour family pickup lead time"
           git push
