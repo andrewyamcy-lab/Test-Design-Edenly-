@@ -1,0 +1,99 @@
+name: Patch mobile navigation
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add mobile menu and sticky order CTA
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          common_css = r'''
+.menu-toggle{display:none;width:42px;height:42px;border:1px solid var(--line);border-radius:50%;background:var(--card);padding:0;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px}
+.menu-toggle span{display:block;width:17px;height:2px;border-radius:2px;background:var(--g);transition:transform .18s ease,opacity .18s ease}
+.menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+.menu-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mobile-menu{display:none;position:absolute;left:0;right:0;top:100%;background:rgba(244,238,223,.98);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--line);box-shadow:0 18px 35px rgba(14,59,44,.10)}
+.mobile-menu.open{display:block}
+.mobile-menu-inner{max-width:1160px;margin:auto;padding:12px 22px 20px;display:grid;gap:7px}
+.mobile-menu a{display:flex;align-items:center;justify-content:space-between;min-height:50px;padding:0 15px;border-radius:16px;font-size:15px;font-weight:750;color:var(--g)}
+.mobile-menu a:hover{background:rgba(216,228,215,.55)}
+.mobile-menu a.family-link{background:var(--p);color:#5a332b}
+.mobile-menu a .arrow{font-size:18px;font-weight:500}
+@media(max-width:960px){.menu-toggle{display:inline-flex}.nav{gap:9px}}
+@media(min-width:961px){.mobile-menu{display:none!important}}
+'''.encode('utf-8')
+
+          menu_js = r'''
+const menuToggle=document.getElementById('menuToggle');
+const mobileMenu=document.getElementById('mobileMenu');
+if(menuToggle&&mobileMenu){
+  const closeMobileMenu=()=>{mobileMenu.classList.remove('open');menuToggle.setAttribute('aria-expanded','false')};
+  menuToggle.addEventListener('click',()=>{const open=mobileMenu.classList.toggle('open');menuToggle.setAttribute('aria-expanded',open?'true':'false')});
+  mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMobileMenu));
+  document.addEventListener('click',ev=>{if(!mobileMenu.contains(ev.target)&&!menuToggle.contains(ev.target))closeMobileMenu()});
+  window.addEventListener('resize',()=>{if(window.innerWidth>960)closeMobileMenu()});
+}
+'''.encode('utf-8')
+
+          toggle = r'''<button class="menu-toggle" id="menuToggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobileMenu"><span></span><span></span><span></span></button>'''.encode('utf-8')
+
+          # Homepage
+          p=Path('index.html')
+          b=p.read_bytes()
+          original=b
+          if b'menu-toggle' not in b:
+              b=b.replace(b'</style>', common_css + rb'''
+.mobile-family-sticky{display:none;position:fixed;left:18px;right:18px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;min-height:56px;align-items:center;justify-content:center;border:1.5px solid #c99f96;border-radius:999px;background:rgba(239,207,200,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 12px 30px rgba(38,37,29,.18);color:#5a332b;font-size:15px;font-weight:850;transform:translateY(90px);opacity:0;transition:transform .22s ease,opacity .22s ease}
+.mobile-family-sticky.show{transform:translateY(0);opacity:1}
+@media(max-width:620px){.mobile-family-sticky{display:flex}}
+''' + b'</style>',1)
+              b=b.replace(b'<button id="e">EN</button></div><a class="pill"', b'<button id="e">EN</button></div>'+toggle+b'<a class="pill"',1)
+              home_menu = '''<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-inner"><a href="#flavours"><span data-zh="口味" data-en="Flavours">口味</span><span class="arrow">→</span></a><a class="family-link" href="family.html?v=20260913-mobile"><span data-zh="家庭裝" data-en="Family Size">家庭裝</span><span class="arrow">→</span></a><a href="#story"><span data-zh="品牌故事" data-en="Our craft">品牌故事</span><span class="arrow">→</span></a><a href="#visit"><span data-zh="到訪" data-en="Visit">到訪</span><span class="arrow">→</span></a><a href="https://www.instagram.com/edenly_gelato/" target="_blank" rel="noopener"><span>Instagram</span><span class="arrow">↗</span></a></div></div>'''.encode('utf-8')
+              b=b.replace(b'</header>', b'</header>'+home_menu,1)
+              sticky = '''<a id="stickyFamilyCta" class="mobile-family-sticky" href="family.html?v=20260913-mobile" data-zh="訂購家庭裝 →" data-en="Order Family Size →">訂購家庭裝 →</a>'''.encode('utf-8')
+              b=b.replace(b'<script>function L', sticky+b'<script>function L',1)
+              sticky_js = r'''
+const stickyFamilyCta=document.getElementById('stickyFamilyCta');
+const heroActions=document.querySelector('.hero .actions');
+const siteFooter=document.querySelector('footer');
+if(stickyFamilyCta&&heroActions){
+  let heroVisible=true,footerVisible=false;
+  const syncSticky=()=>stickyFamilyCta.classList.toggle('show',!heroVisible&&!footerVisible);
+  new IntersectionObserver(([entry])=>{heroVisible=entry.isIntersecting;syncSticky()},{threshold:.15}).observe(heroActions);
+  if(siteFooter)new IntersectionObserver(([entry])=>{footerVisible=entry.isIntersecting;syncSticky()},{threshold:.05}).observe(siteFooter);
+}
+'''.encode('utf-8')
+              b=b.replace(b'</script></body></html>', menu_js+sticky_js+b'</script></body></html>',1)
+          if b!=original:
+              p.write_bytes(b)
+
+          # Family page: same mobile navigation, no sticky CTA.
+          p=Path('family.html')
+          b=p.read_bytes()
+          original=b
+          if b'menu-toggle' not in b:
+              b=b.replace(b'</style>', common_css+b'</style>',1)
+              b=b.replace(b'<button id="e">EN</button></div><a class="pill"', b'<button id="e">EN</button></div>'+toggle+b'<a class="pill"',1)
+              family_menu = '''<div class="mobile-menu" id="mobileMenu"><div class="mobile-menu-inner"><a href="index.html#flavours"><span data-zh="口味" data-en="Flavours">口味</span><span class="arrow">→</span></a><a class="family-link" href="family.html"><span data-zh="家庭裝" data-en="Family Size">家庭裝</span><span class="arrow">→</span></a><a href="index.html#story"><span data-zh="品牌故事" data-en="Our craft">品牌故事</span><span class="arrow">→</span></a><a href="index.html#visit"><span data-zh="到訪" data-en="Visit">到訪</span><span class="arrow">→</span></a><a href="https://www.instagram.com/edenly_gelato/" target="_blank" rel="noopener"><span>Instagram</span><span class="arrow">↗</span></a></div></div>'''.encode('utf-8')
+              b=b.replace(b'</header>', b'</header>'+family_menu,1)
+              b=b.replace(b'</script>', menu_js+b'</script>',1)
+          if b!=original:
+              p.write_bytes(b)
+          PY
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html family.html
+          git commit -m "Add mobile menu and sticky family order CTA"
+          git push
