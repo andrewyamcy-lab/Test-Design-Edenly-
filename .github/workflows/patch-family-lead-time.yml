@@ -15,14 +15,14 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           p = Path('family.html')
-          s = p.read_text(encoding='utf-8')
-          original = s
-          s = s.replace('const LEAD_MINUTES=60;', 'const LEAD_MINUTES=120;')
-          s = s.replace('1 hour', '2 hours')
-          s = s.replace('1 小時', '2 小時')
-          if s == original:
+          b = p.read_bytes()
+          original = b
+          b = b.replace(b'const LEAD_MINUTES=60;', b'const LEAD_MINUTES=120;')
+          b = b.replace(b'1 hour', b'2 hours')
+          b = b.replace('1 小時'.encode('utf-8'), '2 小時'.encode('utf-8'))
+          if b == original:
               raise SystemExit('No changes made')
-          p.write_text(s, encoding='utf-8')
+          p.write_bytes(b)
           PY
       - name: Commit changes
         run: |
