@@ -15,35 +15,30 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import re
-
           p=Path('index.html')
           s=p.read_text(encoding='utf-8')
-
           s=s.replace('.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}', '.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}')
           if '@media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}' not in s:
               s=s.replace('</style>', '@media(max-width:960px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:620px){.grid{grid-template-columns:1fr}}\n</style>', 1)
-
           old_strip='<div class="strip"><div><span>抹茶 ✦ 開心果 ✦ 豆腐 ✦ 雪葩 ✦ 季節限定 ✦ 香港製作 ✦</span><span>抹茶 ✦ 開心果 ✦ 豆腐 ✦ 雪葩 ✦ 季節限定 ✦ 香港製作 ✦</span></div></div>'
           new_strip='<div class="strip"><div><span>雲呢拿 ✦ 開心果 ✦ 希臘乳酪 ✦ 奧利奧曲奇 ✦ 抹茶 ✦ 焦糖脆餅 ✦ 豆腐 ✦ 季節限定 ✦</span><span>雲呢拿 ✦ 開心果 ✦ 希臘乳酪 ✦ 奧利奧曲奇 ✦ 抹茶 ✦ 焦糖脆餅 ✦ 豆腐 ✦ 季節限定 ✦</span></div></div>'
           s=s.replace(old_strip,new_strip)
-
-          section='''<div class="w"><section id="flavours"><div class="head"><div><div class="k" data-zh="雪櫃口味" data-en="The counter">雪櫃口味</div><h2 data-zh="八款口味，總有一款啱你。" data-en="Eight flavours, something for everyone.">八款口味，總有一款啱你。</h2></div><p data-zh="以下為 Edenly 現時的八款口味；每日供應情況以店內及 Instagram 最新公告為準。" data-en="These are Edenly’s current eight flavours. Daily availability may vary — check the shop or Instagram for the latest selection.">以下為 Edenly 現時的八款口味；每日供應情況以店內及 Instagram 最新公告為準。</p></div><div class="grid">
-<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="雲呢拿" data-en="Vanilla">雲呢拿</h3><p data-zh="經典奶香，柔滑清甜。" data-en="Classic vanilla, smooth and creamy.">經典奶香，柔滑清甜。</p></div>
-<div class="card fl"><div class="orb"></div><small>Signature</small><h3 data-zh="開心果" data-en="Pistachio">開心果</h3><p data-zh="濃郁堅果香，醇厚而飽滿。" data-en="Rich, nutty and full-bodied.">濃郁堅果香，醇厚而飽滿。</p></div>
-<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="希臘乳酪" data-en="Greek Yogurt">希臘乳酪</h3><p data-zh="微酸清爽，奶香細緻。" data-en="Bright, gently tangy and refreshing.">微酸清爽，奶香細緻。</p></div>
-<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="奧利奧曲奇" data-en="Oreo Cookie">奧利奧曲奇</h3><p data-zh="朱古力曲奇碎融入綿密奶香。" data-en="Creamy gelato with chocolate cookie crunch.">朱古力曲奇碎融入綿密奶香。</p></div>
-<div class="card fl"><div class="orb"></div><small>Signature</small><h3 data-zh="抹茶" data-en="Matcha">抹茶</h3><p data-zh="茶香濃郁，尾韻乾淨。" data-en="Deep matcha character with a clean finish.">茶香濃郁，尾韻乾淨。</p></div>
-<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="焦糖脆餅" data-en="Caramel Biscoff">焦糖脆餅</h3><p data-zh="焦糖脆餅香與綿密奶感交織。" data-en="Caramel Biscoff warmth in a creamy base.">焦糖脆餅香與綿密奶感交織。</p></div>
-<div class="card fl"><div class="orb"></div><small>Signature</small><h3 data-zh="豆腐" data-en="Tofu">豆腐</h3><p data-zh="柔滑豆香，細緻而輕盈。" data-en="Silky soy flavour, subtle and light.">柔滑豆香，細緻而輕盈。</p></div>
-<div class="card fl"><div class="orb"></div><small>Seasonal</small><h3 data-zh="季節限定" data-en="Seasonal Special">季節限定</h3><p data-zh="隨季節輪換，不定期帶來新驚喜。" data-en="A rotating seasonal flavour with something new to discover.">隨季節輪換，不定期帶來新驚喜。</p></div>
-</div></section>
-</div>'''
-
+          section=(
+              '<div class="w"><section id="flavours"><div class="head"><div><div class="k" data-zh="雪櫃口味" data-en="The counter">雪櫃口味</div><h2 data-zh="八款口味，總有一款啱你。" data-en="Eight flavours, something for everyone.">八款口味，總有一款啱你。</h2></div><p data-zh="以下為 Edenly 現時的八款口味；每日供應情況以店內及 Instagram 最新公告為準。" data-en="These are Edenly’s current eight flavours. Daily availability may vary — check the shop or Instagram for the latest selection.">以下為 Edenly 現時的八款口味；每日供應情況以店內及 Instagram 最新公告為準。</p></div><div class="grid">'
+              '<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="雲呢拿" data-en="Vanilla">雲呢拿</h3><p data-zh="經典奶香，柔滑清甜。" data-en="Classic vanilla, smooth and creamy.">經典奶香，柔滑清甜。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Signature</small><h3 data-zh="開心果" data-en="Pistachio">開心果</h3><p data-zh="濃郁堅果香，醇厚而飽滿。" data-en="Rich, nutty and full-bodied.">濃郁堅果香，醇厚而飽滿。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="希臘乳酪" data-en="Greek Yogurt">希臘乳酪</h3><p data-zh="微酸清爽，奶香細緻。" data-en="Bright, gently tangy and refreshing.">微酸清爽，奶香細緻。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="奧利奧曲奇" data-en="Oreo Cookie">奧利奧曲奇</h3><p data-zh="朱古力曲奇碎融入綿密奶香。" data-en="Creamy gelato with chocolate cookie crunch.">朱古力曲奇碎融入綿密奶香。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Signature</small><h3 data-zh="抹茶" data-en="Matcha">抹茶</h3><p data-zh="茶香濃郁，尾韻乾淨。" data-en="Deep matcha character with a clean finish.">茶香濃郁，尾韻乾淨。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Classic</small><h3 data-zh="焦糖脆餅" data-en="Caramel Biscoff">焦糖脆餅</h3><p data-zh="焦糖脆餅香與綿密奶感交織。" data-en="Caramel Biscoff warmth in a creamy base.">焦糖脆餅香與綿密奶感交織。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Signature</small><h3 data-zh="豆腐" data-en="Tofu">豆腐</h3><p data-zh="柔滑豆香，細緻而輕盈。" data-en="Silky soy flavour, subtle and light.">柔滑豆香，細緻而輕盈。</p></div>'
+              '<div class="card fl"><div class="orb"></div><small>Seasonal</small><h3 data-zh="季節限定" data-en="Seasonal Special">季節限定</h3><p data-zh="隨季節輪換，不定期帶來新驚喜。" data-en="A rotating seasonal flavour with something new to discover.">隨季節輪換，不定期帶來新驚喜。</p></div>'
+              '</div></section>\n</div>'
+          )
           pat=r'<div class="w"><section id="flavours">.*?</section>\n</div>(?=\n<section class="story")'
           s,n=re.subn(pat,section,s,count=1,flags=re.S)
           if n!=1:
               raise SystemExit('Could not replace flavours section')
-
           p.write_text(s,encoding='utf-8')
           PY
       - name: Commit changes
