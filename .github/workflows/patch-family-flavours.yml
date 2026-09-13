@@ -1,0 +1,41 @@
+name: Patch family flavours
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add seasonal family flavour
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('family.html')
+          s=p.read_text(encoding='utf-8')
+          original=s
+          if 'value="seasonal"' not in s:
+              tofu_pat=r'(<input class="choice-input flavour-check" type="checkbox" id="f7" value="tofu" disabled><label class="flavour-choice" for="f7"><strong data-zh="豆腐" data-en="Tofu">豆腐</strong><small>Tofu</small></label>)'
+              seasonal='''\\1\n<input class="choice-input flavour-check" type="checkbox" id="f8" value="seasonal" disabled><label class="flavour-choice" for="f8"><strong data-zh="季節限定" data-en="Seasonal Special">季節限定</strong><small>Seasonal Special</small></label>'''
+              s,n=re.subn(tofu_pat,seasonal,s,count=1)
+              if n!=1:
+                  raise SystemExit('Could not find tofu flavour block')
+          if "seasonal:{zh:'季節限定',en:'Seasonal Special'}" not in s:
+              s=s.replace("tofu:{zh:'豆腐',en:'Tofu'}};","tofu:{zh:'豆腐',en:'Tofu'},seasonal:{zh:'季節限定',en:'Seasonal Special'}};")
+          if s==original:
+              print('No changes needed')
+          else:
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add family.html
+          git commit -m "Update family-size gelato flavours"
+          git push
