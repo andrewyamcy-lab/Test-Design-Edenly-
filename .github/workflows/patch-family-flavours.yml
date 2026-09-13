@@ -10,36 +10,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Update family-size flavour choices
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          p = Path('family.html')
-          s = p.read_text(encoding='utf-8')
-
-          new_grid = '''<div class="flavour-grid">
-<input class="choice-input flavour-check" type="checkbox" id="f1" value="vanilla" disabled><label class="flavour-choice" for="f1"><strong data-zh="雲呢拿" data-en="Vanilla">雲呢拿</strong><small>Vanilla</small></label>
+        run: python -c "import base64;exec(base64.b64decode('ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCmltcG9ydCByZQoKcCA9IFBhdGgoImZhbWlseS5odG1sIikKcyA9IHAucmVhZF90ZXh0KGVuY29kaW5nPSJ1dGYtOCIpCgpuZXdfZ3JpZCA9ICIiIjxkaXYgY2xhc3M9ImZsYXZvdXItZ3JpZCI+CjxpbnB1dCBjbGFzcz0iY2hvaWNlLWlucHV0IGZsYXZvdXItY2hlY2siIHR5cGU9ImNoZWNrYm94IiBpZD0iZjEiIHZhbHVlPSJ2YW5pbGxhIiBkaXNhYmxlZD48bGFiZWwgY2xhc3M9ImZsYXZvdXItY2hvaWNlIiBmb3I9ImYxIj48c3Ryb25nIGRhdGEtemg9IumbyuWRoue 拿" data-en="Vanilla">雲呢拿</strong><small>Vanilla</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f2" value="pistachio" disabled><label class="flavour-choice" for="f2"><strong data-zh="開心果" data-en="Pistachio">開心果</strong><small>Pistachio</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f3" value="yogurt" disabled><label class="flavour-choice" for="f3"><strong data-zh="希臘乳酪" data-en="Greek Yogurt">希臘乳酪</strong><small>Greek Yogurt</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f4" value="oreo" disabled><label class="flavour-choice" for="f4"><strong data-zh="奧利奧曲奇" data-en="Oreo Cookie">奧利奧曲奇</strong><small>Oreo Cookie</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f5" value="matcha" disabled><label class="flavour-choice" for="f5"><strong data-zh="抹茶" data-en="Matcha">抹茶</strong><small>Matcha</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f6" value="caramel_biscuit" disabled><label class="flavour-choice" for="f6"><strong data-zh="焦糖脆餅" data-en="Caramel Biscuit">焦糖脆餅</strong><small>Caramel Biscuit</small></label>
 <input class="choice-input flavour-check" type="checkbox" id="f7" value="tofu" disabled><label class="flavour-choice" for="f7"><strong data-zh="豆腐" data-en="Tofu">豆腐</strong><small>Tofu</small></label>
-</div></div>'''
+</div></div>"""
 
-          pat = r'<div class="flavour-grid">.*?</div></div>(?=\n<div class="order-step"><div class="stephead"><div><div class="stepnum">3</div>)'
-          s2, n = re.subn(pat, new_grid, s, count=1, flags=re.S)
-          if n != 1:
-              raise SystemExit(f'flavour grid replacement count={n}')
+pat = r'<div class="flavour-grid">.*?</div></div>(?=\n<div class="order-step"><div class="stephead"><div><div class="stepnum">3</div>)'
+s2, n = re.subn(pat, new_grid, s, count=1, flags=re.S)
+if n != 1:
+    raise SystemExit(f"flavour grid replacement count={n}")
 
-          new_map = "const flavours={vanilla:{zh:'雲呢拿',en:'Vanilla'},pistachio:{zh:'開心果',en:'Pistachio'},yogurt:{zh:'希臘乳酪',en:'Greek Yogurt'},oreo:{zh:'奧利奧曲奇',en:'Oreo Cookie'},matcha:{zh:'抹茶',en:'Matcha'},caramel_biscuit:{zh:'焦糖脆餅',en:'Caramel Biscuit'},tofu:{zh:'豆腐',en:'Tofu'}};"
-          s3, n = re.subn(r'const flavours=\{.*?\};', new_map, s2, count=1)
-          if n != 1:
-              raise SystemExit(f'flavour map replacement count={n}')
+new_map = "const flavours={vanilla:{zh:'雲呢拿',en:'Vanilla'},pistachio:{zh:'開心果',en:'Pistachio'},yogurt:{zh:'希臘乳酪',en:'Greek Yogurt'},oreo:{zh:'奧利奧曲奇',en:'Oreo Cookie'},matcha:{zh:'抹茶',en:'Matcha'},caramel_biscuit:{zh:'焦糖脆餅',en:'Caramel Biscuit'},tofu:{zh:'豆腐',en:'Tofu'}};"
+s3, n = re.subn(r"const flavours=\{.*?\};", new_map, s2, count=1)
+if n != 1:
+    raise SystemExit(f"flavour map replacement count={n}")
 
-          p.write_text(s3, encoding='utf-8')
-          PY
+p.write_text(s3, encoding="utf-8")
+'.encode()).decode())"
       - name: Commit changes
         run: |
           if git diff --quiet -- family.html; then
