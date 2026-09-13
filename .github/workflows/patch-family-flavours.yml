@@ -16,20 +16,27 @@ jobs:
           from pathlib import Path
           import re
           p=Path('family.html')
-          s=p.read_text(encoding='utf-8')
-          original=s
-          if 'value="seasonal"' not in s:
-              tofu_pat=r'(<input class="choice-input flavour-check" type="checkbox" id="f7" value="tofu" disabled><label class="flavour-choice" for="f7"><strong data-zh="豆腐" data-en="Tofu">豆腐</strong><small>Tofu</small></label>)'
-              seasonal='''\\1\n<input class="choice-input flavour-check" type="checkbox" id="f8" value="seasonal" disabled><label class="flavour-choice" for="f8"><strong data-zh="季節限定" data-en="Seasonal Special">季節限定</strong><small>Seasonal Special</small></label>'''
-              s,n=re.subn(tofu_pat,seasonal,s,count=1)
+          b=p.read_bytes()
+          original=b
+          if b'value="seasonal"' not in b:
+              pat=rb'(<input class="choice-input flavour-check" type="checkbox" id="f7" value="tofu" disabled><label class="flavour-choice" for="f7">.*?</label>)'
+              block='\n<input class="choice-input flavour-check" type="checkbox" id="f8" value="seasonal" disabled><label class="flavour-choice" for="f8"><strong data-zh="季節限定" data-en="Seasonal Special">季節限定</strong><small>Seasonal Special</small></label>'.encode('utf-8')
+              b,n=re.subn(pat,lambda m:m.group(1)+block,b,count=1,flags=re.S)
               if n!=1:
                   raise SystemExit('Could not find tofu flavour block')
-          if "seasonal:{zh:'季節限定',en:'Seasonal Special'}" not in s:
-              s=s.replace("tofu:{zh:'豆腐',en:'Tofu'}};","tofu:{zh:'豆腐',en:'Tofu'},seasonal:{zh:'季節限定',en:'Seasonal Special'}};")
-          if s==original:
+          marker=b'};\nconst sizeRadios'
+          start=b.find(b'const flavours={')
+          end=b.find(marker,start)
+          if start<0 or end<0:
+              raise SystemExit('Could not find flavours object')
+          obj=b[start:end]
+          if b'seasonal:' not in obj:
+              addition=",seasonal:{zh:'季節限定',en:'Seasonal Special'}".encode('utf-8')
+              b=b[:end]+addition+b[end:]
+          if b==original:
               print('No changes needed')
           else:
-              p.write_text(s,encoding='utf-8')
+              p.write_bytes(b)
           PY
       - name: Commit changes
         run: |
