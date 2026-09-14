@@ -1,0 +1,35 @@
+name: Fix mobile date vertical alignment
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vertically center iPhone date value
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('family.html')
+          b = p.read_bytes()
+          marker = b'/* mobile-date-vertical-center */'
+          if marker in b:
+              raise SystemExit('Mobile date vertical fix already present')
+          css = b'''\n/* mobile-date-vertical-center */\n@media(max-width:620px){\n  .field input[type="date"]{\n    line-height:54px;\n    padding-top:0;\n    padding-bottom:0;\n  }\n  .field input[type="date"]::-webkit-date-and-time-value{\n    display:block;\n    height:54px;\n    min-height:54px;\n    line-height:54px;\n    padding:0;\n    margin:0;\n    text-align:left;\n  }\n  .field input[type="date"]::-webkit-datetime-edit{\n    display:block;\n    height:54px;\n    line-height:54px;\n    padding:0;\n  }\n  .field input[type="date"]::-webkit-datetime-edit-fields-wrapper{\n    display:flex;\n    align-items:center;\n    height:54px;\n  }\n}\n'''
+          if b'</style>' not in b:
+              raise SystemExit('Could not find </style>')
+          b = b.replace(b'</style>', css + b'</style>', 1)
+          p.write_bytes(b)
+          PY
+      - name: Commit changes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add family.html
+          git rm .github/workflows/fix-mobile-date-vertical-center.yml
+          git commit -m "Center mobile date text vertically"
+          git push
