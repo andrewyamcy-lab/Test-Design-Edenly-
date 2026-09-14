@@ -31,6 +31,54 @@ section{padding:88px 0}.head{display:flex;justify-content:space-between;gap:28px
 .mobile-menu a .arrow{font-size:18px;font-weight:500}
 @media(max-width:960px){.menu-toggle{display:inline-flex}.nav{gap:9px}}
 @media(min-width:961px){.mobile-menu{display:none!important}}
+
+/* mobile-date-input-fix */
+.field input[type="date"]{
+  -webkit-appearance:none;
+  appearance:none;
+  display:block;
+  width:100%;
+  min-width:0;
+  height:52px;
+  min-height:52px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#fff;
+  color:var(--ink);
+  font:inherit;
+  font-size:16px;
+  line-height:1.2;
+  text-align:left;
+  box-sizing:border-box;
+}
+.field input[type="date"]::-webkit-date-and-time-value{
+  text-align:left;
+  margin:0;
+  min-height:0;
+}
+.field input[type="date"]::-webkit-datetime-edit{
+  padding:0;
+}
+.field input[type="date"]::-webkit-calendar-picker-indicator{
+  margin:0;
+  padding:0;
+  opacity:.62;
+}
+.field input[type="date"]:focus{
+  border-color:var(--g);
+  box-shadow:0 0 0 3px rgba(14,59,44,.08);
+  outline:none;
+}
+@media(max-width:620px){
+  .field input[type="date"]{
+    height:54px;
+    min-height:54px;
+    border-radius:15px;
+    padding:0 14px;
+    font-size:16px;
+  }
+}
 </style>
 </head>
 <body>
