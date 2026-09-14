@@ -1,0 +1,34 @@
+name: Sync flavour data
+
+on:
+  push:
+    paths:
+      - data/flavours.json
+      - scripts/sync_flavours.py
+      - .github/workflows/sync-flavours.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Generate flavour sections
+        run: python scripts/sync_flavours.py
+      - name: Commit generated site changes
+        run: |
+          if git diff --quiet -- index.html family.html; then
+            echo "No generated changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html family.html
+          git commit -m "Sync website flavours from CMS data"
+          git push
