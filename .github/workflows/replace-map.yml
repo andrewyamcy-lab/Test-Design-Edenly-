@@ -1,0 +1,49 @@
+name: Replace visit map
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace decorative map with Google Map preview
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('index.html')
+          b=p.read_bytes()
+
+          css_re=rb'\.map\{min-height:320px.*?(?=\.modalbg\{)'
+          css=(
+            '.map{min-height:320px;border-radius:var(--r);position:relative;overflow:hidden;transition:.2s;background:#ddd}'
+            '.map:hover{transform:translateY(-4px)}'
+            '.map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block}'
+            '.map-hit{position:absolute;inset:0;z-index:2}'
+            '.maptxt{position:absolute;z-index:3;left:20px;bottom:18px;background:var(--card);padding:9px 12px;border-radius:12px;font-size:12px;font-weight:800;pointer-events:none;box-shadow:0 8px 22px rgba(0,0,0,.12)}'
+          ).encode('utf-8')
+          b,n=re.subn(css_re,css,b,count=1,flags=re.S)
+          if n!=1:
+              raise SystemExit(f'CSS map block replacement failed: {n}')
+
+          html_re=rb'<a href="https://www\.google\.com/maps/search/\?api=1&query=Edenly%20Gelato%2C%20Shop%20C%2C%20G%2FF%2C%2038-42%20Eastern%20Street%2C%20Sai%20Ying%20Pun%2C%20Hong%20Kong" target="_blank"><div class="map">.*?</div></a>'
+          html='''<div class="map"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Edenly Gelato on Google Maps" src="https://www.google.com/maps?q=Edenly%20Gelato%2C%20Shop%20C%2C%20G%2FF%2C%2038-42%20Eastern%20Street%2C%20Sai%20Ying%20Pun%2C%20Hong%20Kong&output=embed"></iframe><a class="map-hit" href="https://www.google.com/maps/search/?api=1&query=Edenly%20Gelato&query_place_id=ChIJXXu8Fzz_AzQR8lOkIz7QjYU" target="_blank" rel="noopener" aria-label="Open Edenly Gelato in Google Maps"></a><div class="maptxt" data-zh="東邊街 · 西營盤 · Google Maps ↗" data-en="Eastern Street · Sai Ying Pun · Google Maps ↗">東邊街 · 西營盤 · Google Maps ↗</div></div>'''.encode('utf-8')
+          b,n=re.subn(html_re,html,b,count=1,flags=re.S)
+          if n!=1:
+              raise SystemExit(f'HTML map block replacement failed: {n}')
+
+          p.write_bytes(b)
+          PY
+      - name: Commit changes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm .github/workflows/replace-map.yml
+          git commit -m "Replace decorative map with Google Maps preview"
+          git push
