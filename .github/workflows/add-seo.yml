@@ -1,0 +1,173 @@
+name: Add SEO and social metadata
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch SEO metadata
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import json, re
+
+          BASE = "https://andrewyamcy-lab.github.io/Test-Design-Edenly-"
+          HOME = BASE + "/"
+          FAMILY = BASE + "/family.html"
+          BUSINESS_ID = HOME + "#business"
+
+          business = {
+              "@type": "IceCreamShop",
+              "@id": BUSINESS_ID,
+              "name": "Edenly Gelato",
+              "url": HOME,
+              "image": BASE + "/assets/edenly-product-hero.jpg",
+              "telephone": "+852 6469 8387",
+              "sameAs": ["https://www.instagram.com/edenly_gelato/"],
+              "address": {
+                  "@type": "PostalAddress",
+                  "streetAddress": "Shop C, G/F, 38\u201342 Eastern Street",
+                  "addressLocality": "Sai Ying Pun",
+                  "addressRegion": "Hong Kong",
+                  "addressCountry": "HK"
+              },
+              "openingHoursSpecification": [
+                  {
+                      "@type": "OpeningHoursSpecification",
+                      "dayOfWeek": [
+                          "https://schema.org/Monday",
+                          "https://schema.org/Tuesday",
+                          "https://schema.org/Wednesday",
+                          "https://schema.org/Thursday",
+                          "https://schema.org/Sunday"
+                      ],
+                      "opens": "12:00",
+                      "closes": "22:30"
+                  },
+                  {
+                      "@type": "OpeningHoursSpecification",
+                      "dayOfWeek": [
+                          "https://schema.org/Friday",
+                          "https://schema.org/Saturday"
+                      ],
+                      "opens": "12:00",
+                      "closes": "23:30"
+                  }
+              ]
+          }
+
+          def graph(page_url, page_name, image=None):
+              page = {
+                  "@type": "WebPage",
+                  "@id": page_url + "#webpage",
+                  "url": page_url,
+                  "name": page_name,
+                  "isPartOf": {"@id": HOME + "#website"},
+                  "about": {"@id": BUSINESS_ID},
+                  "inLanguage": "zh-Hant"
+              }
+              if image:
+                  page["primaryImageOfPage"] = {"@type": "ImageObject", "url": image}
+              return {
+                  "@context": "https://schema.org",
+                  "@graph": [
+                      business,
+                      {
+                          "@type": "WebSite",
+                          "@id": HOME + "#website",
+                          "url": HOME,
+                          "name": "Edenly Gelato",
+                          "publisher": {"@id": BUSINESS_ID},
+                          "inLanguage": ["zh-Hant", "en"]
+                      },
+                      page
+                  ]
+              }
+
+          def patch_page(path, title, description, canonical, og_image, og_alt, desc_id=False):
+              p = Path(path)
+              b = p.read_bytes()
+
+              b = re.sub(rb'\n?<!-- seo-start -->.*?<!-- seo-end -->\n?', b'\n', b, flags=re.S)
+              b = re.sub(rb'<title>.*?</title>', ('<title>' + title + '</title>').encode('utf-8'), b, count=1, flags=re.S)
+              b = re.sub(rb'<meta\s+(?:id="desc"\s+)?name="description"[^>]*>\s*', b'', b, flags=re.I)
+
+              structured = json.dumps(
+                  graph(canonical, title, og_image),
+                  ensure_ascii=False,
+                  separators=(',', ':')
+              )
+              desc_attr = ' id="desc"' if desc_id else ''
+              block = f'''
+          <!-- seo-start -->
+          <meta{desc_attr} name="description" content="{description}">
+          <link rel="canonical" href="{canonical}">
+          <meta name="robots" content="index,follow,max-image-preview:large">
+          <meta property="og:type" content="website">
+          <meta property="og:site_name" content="Edenly Gelato">
+          <meta property="og:locale" content="zh_HK">
+          <meta property="og:title" content="{title}">
+          <meta property="og:description" content="{description}">
+          <meta property="og:url" content="{canonical}">
+          <meta property="og:image" content="{og_image}">
+          <meta property="og:image:alt" content="{og_alt}">
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:title" content="{title}">
+          <meta name="twitter:description" content="{description}">
+          <meta name="twitter:image" content="{og_image}">
+          <script type="application/ld+json">{structured}</script>
+          <!-- seo-end -->
+          '''.encode('utf-8')
+
+              if b'<style>' not in b:
+                  raise SystemExit(f"Missing <style> in {path}")
+              b = b.replace(b'<style>', block + b'<style>', 1)
+              p.write_bytes(b)
+
+          patch_page(
+              "index.html",
+              "Edenly Gelato\uff5c\u897f\u71df\u76e4\u624b\u5de5 Gelato\u30fbHong Kong",
+              "Edenly Gelato \u4f4d\u65bc\u9999\u6e2f\u897f\u71df\u76e4\uff0c\u6bcf\u65e5\u5c0f\u6279\u91cf\u88fd\u4f5c\u624b\u5de5 Gelato\uff0c\u63d0\u4f9b\u516b\u6b3e\u8f2a\u6d41\u4f9b\u61c9\u53e3\u5473\u53ca\u5bb6\u5ead\u88dd\u9810\u8a02\u3002",
+              HOME,
+              BASE + "/assets/edenly-product-hero.jpg",
+              "Edenly Gelato \u624b\u5de5 Gelato",
+              False
+          )
+
+          patch_page(
+              "family.html",
+              "Edenly Gelato \u5bb6\u5ead\u88dd\uff5c500cc\u30fb750cc\u30fb1000cc \u7db2\u4e0a\u9810\u8a02",
+              "Edenly Gelato \u5bb6\u5ead\u88dd\u63d0\u4f9b 500cc\u3001750cc \u53ca 1000cc\uff0c\u53ef\u9078\u591a\u6b3e\u53e3\u5473\u53ca\u53d6\u8ca8\u6642\u6bb5\uff0c\u7db2\u7ad9\u6703\u81ea\u52d5\u7522\u751f WhatsApp \u8a02\u55ae\u8a0a\u606f\u3002",
+              FAMILY,
+              BASE + "/assets/family-hero.png",
+              "Edenly Gelato \u5bb6\u5ead\u88dd Gelato",
+              True
+          )
+
+          Path("robots.txt").write_text(
+              "User-agent: *\nAllow: /\nSitemap: " + BASE + "/sitemap.xml\n",
+              encoding="utf-8"
+          )
+
+          Path("sitemap.xml").write_text(
+              '<?xml version="1.0" encoding="UTF-8"?>\n'
+              '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+              f'  <url><loc>{HOME}</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n'
+              f'  <url><loc>{FAMILY}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>\n'
+              '</urlset>\n',
+              encoding="utf-8"
+          )
+          PY
+      - name: Commit changes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html family.html robots.txt sitemap.xml
+          git rm .github/workflows/add-seo.yml
+          git commit -m "Add SEO social metadata and structured data"
+          git push
