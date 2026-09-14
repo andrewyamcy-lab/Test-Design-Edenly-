@@ -1,0 +1,54 @@
+backend:
+  name: git-gateway
+  branch: main
+
+site_url: https://andrewyamcy-lab.github.io/Test-Design-Edenly-/
+display_url: https://andrewyamcy-lab.github.io/Test-Design-Edenly-/
+logo_url: /Test-Design-Edenly-/assets/edenly-logo.svg
+
+media_folder: assets/flavours
+public_folder: /Test-Design-Edenly-/assets/flavours
+
+collections:
+  - label: "Flavours"
+    name: "flavours"
+    files:
+      - label: "Flavour List"
+        name: "flavour_list"
+        file: "data/flavours.json"
+        format: "json"
+        fields:
+          - label: "Flavours"
+            name: "flavours"
+            widget: "list"
+            summary: "{{fields.name_en}} — {{fields.status}}"
+            label_singular: "Flavour"
+            allow_add: true
+            allow_remove: true
+            allow_reorder: true
+            collapsed: true
+            fields:
+              - label: "ID"
+                name: "id"
+                widget: "string"
+                hint: "Short unique code, lowercase only. Example: strawberry_yogurt"
+                pattern: ["^[a-z0-9_]+$", "Use lowercase letters, numbers and underscores only."]
+              - { label: "中文名稱", name: "name_zh", widget: "string" }
+              - { label: "English name", name: "name_en", widget: "string" }
+              - { label: "中文簡介", name: "description_zh", widget: "string", required: false }
+              - { label: "English description", name: "description_en", widget: "string", required: false }
+              - label: "Category"
+                name: "category"
+                widget: "select"
+                options: ["Classic", "Signature", "Seasonal"]
+                default: "Classic"
+              - label: "Status"
+                name: "status"
+                widget: "select"
+                options:
+                  - { label: "Available", value: "available" }
+                  - { label: "Sold Out", value: "soldout" }
+                  - { label: "Hidden", value: "hidden" }
+                default: "available"
+              - { label: "Show on homepage", name: "homepage", widget: "boolean", default: true }
+              - { label: "Allow Family Size", name: "family", widget: "boolean", default: true }
