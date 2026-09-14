@@ -1,0 +1,56 @@
+name: Remove broken mobile menu
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove hamburger menu from homepage and family page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          for name in ['index.html','family.html']:
+              p=Path(name)
+              b=p.read_bytes()
+
+              # Remove hamburger/mobile-menu CSS block, keep the sticky family CTA on index.
+              b=re.sub(
+                  rb'\n\.menu-toggle\{.*?@media\(min-width:961px\)\{\.mobile-menu\{display:none!important\}\}\n',
+                  b'\n', b, count=1, flags=re.S
+              )
+
+              # Remove the hamburger button itself.
+              b=re.sub(
+                  rb'<button[^>]*id="menuToggle"[^>]*>.*?</button>',
+                  b'', b, count=1, flags=re.S
+              )
+
+              # Remove the dropdown menu wrapper and its inner links.
+              b=re.sub(
+                  rb'<div class="mobile-menu" id="mobileMenu"[^>]*>.*?</div></div>',
+                  b'', b, count=1, flags=re.S
+              )
+
+              # Remove the JS controlling the hamburger menu.
+              b=re.sub(
+                  rb'\nconst menuToggle=document\.getElementById\(\'menuToggle\'\);\nconst mobileMenu=document\.getElementById\(\'mobileMenu\'\);\nif\(menuToggle&&mobileMenu\)\{.*?\n\}\n',
+                  b'\n', b, count=1, flags=re.S
+              )
+
+              p.write_bytes(b)
+          PY
+      - name: Commit changes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html family.html
+          git rm .github/workflows/remove-mobile-menu.yml
+          git commit -m "Remove broken mobile hamburger menu"
+          git push
