@@ -1,0 +1,92 @@
+{
+  "flavours": [
+    {
+      "id": "vanilla",
+      "name_zh": "雲呢拿",
+      "name_en": "Vanilla",
+      "description_zh": "經典奶香，柔滑清甜。",
+      "description_en": "Classic vanilla, smooth and creamy.",
+      "category": "Classic",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "pistachio",
+      "name_zh": "開心果",
+      "name_en": "Pistachio",
+      "description_zh": "濃郁堅果香，醇厚而飽滿。",
+      "description_en": "Rich, nutty and full-bodied.",
+      "category": "Signature",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "yogurt",
+      "name_zh": "希臘乳酪",
+      "name_en": "Greek Yogurt",
+      "description_zh": "微酸清爽，奶香細緻。",
+      "description_en": "Bright, gently tangy and refreshing.",
+      "category": "Classic",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "oreo",
+      "name_zh": "奧利奧曲奇",
+      "name_en": "Oreo Cookie",
+      "description_zh": "朱古力曲奇碎融入綿密奶香。",
+      "description_en": "Creamy gelato with chocolate cookie crunch.",
+      "category": "Classic",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "matcha",
+      "name_zh": "抹茶",
+      "name_en": "Matcha",
+      "description_zh": "茶香濃郁，尾韻乾淨。",
+      "description_en": "Deep matcha character with a clean finish.",
+      "category": "Signature",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "caramel_biscuit",
+      "name_zh": "焦糖脆餅",
+      "name_en": "Caramel Biscoff",
+      "description_zh": "焦糖脆餅香與綿密奶感交織。",
+      "description_en": "Caramel Biscoff warmth in a creamy base.",
+      "category": "Classic",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "tofu",
+      "name_zh": "豆腐",
+      "name_en": "Tofu",
+      "description_zh": "柔滑豆香，細緻而輕盈。",
+      "description_en": "Silky soy flavour, subtle and light.",
+      "category": "Signature",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    },
+    {
+      "id": "seasonal",
+      "name_zh": "季節限定",
+      "name_en": "Seasonal Special",
+      "description_zh": "隨季節輪換，不定期帶來新驚喜。",
+      "description_en": "A rotating seasonal flavour with something new to discover.",
+      "category": "Seasonal",
+      "status": "available",
+      "homepage": true,
+      "family": true
+    }
+  ]
+}
