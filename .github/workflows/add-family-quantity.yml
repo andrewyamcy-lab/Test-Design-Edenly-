@@ -1,0 +1,87 @@
+name: Add family quantity selector
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add quantity selector and quantity-aware total/order message
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('family.html')
+          b=p.read_bytes()
+          if b'/* family-quantity-selector */' in b:
+              raise SystemExit('Quantity selector already present')
+          css=r'''
+/* family-quantity-selector */
+.quantity-box{margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;border:1px solid var(--line);border-radius:20px;background:#f7f3ea}
+.quantity-copy strong{display:block;color:var(--g);font-size:15px;margin-bottom:2px}.quantity-copy small{display:block;color:var(--muted);font-size:12px;line-height:1.45;max-width:560px}
+.quantity-stepper{display:grid;grid-template-columns:44px 56px 44px;align-items:center;border:1px solid rgba(14,59,44,.18);border-radius:999px;background:#fff;overflow:hidden;flex:0 0 auto}
+.quantity-stepper button{height:44px;border:0;background:transparent;color:var(--g);font-size:23px;line-height:1;cursor:pointer;font-weight:700}.quantity-stepper button:hover{background:#edf4ee}.quantity-stepper button:disabled{opacity:.3;cursor:not-allowed;background:transparent}
+.quantity-stepper output{display:grid;place-items:center;height:44px;font-weight:900;color:var(--g);border-left:1px solid rgba(14,59,44,.12);border-right:1px solid rgba(14,59,44,.12)}
+@media(max-width:620px){.quantity-box{align-items:flex-start;flex-direction:column}.quantity-stepper{width:100%;grid-template-columns:52px 1fr 52px}.quantity-stepper button,.quantity-stepper output{height:48px}}
+'''.encode('utf-8')
+          if b'</style>' not in b: raise SystemExit('Missing </style>')
+          b=b.replace(b'</style>',css+b'</style>',1)
+          js=r'''
+<script id="familyQuantityScript">
+(()=>{
+  const sizeOptions=document.querySelector('.size-options');
+  const totalBox=document.getElementById('orderTotal');
+  const preview=document.getElementById('orderPreview');
+  const waButton=document.getElementById('waOrder');
+  const resetButton=document.getElementById('resetOrder');
+  const pickupDateEl=document.getElementById('pickupDate');
+  const pickupTimeEl=document.getElementById('pickupTime');
+  if(!sizeOptions||!totalBox||!preview||!waButton)return;
+  let quantity=1;
+  const priceMap={500:248,750:348,1000:438};
+  const box=document.createElement('div');
+  box.className='quantity-box';
+  box.innerHTML=`<div class="quantity-copy"><strong id="qtyTitle">數量</strong><small id="qtyHelp">數量會套用同一容量及口味組合；如每盒想揀不同口味，可在 WhatsApp 再註明。</small></div><div class="quantity-stepper" aria-label="Quantity"><button id="qtyMinus" type="button" aria-label="Decrease quantity">−</button><output id="qtyValue" aria-live="polite">1</output><button id="qtyPlus" type="button" aria-label="Increase quantity">+</button></div>`;
+  sizeOptions.insertAdjacentElement('afterend',box);
+  const qtyMinus=document.getElementById('qtyMinus');
+  const qtyPlus=document.getElementById('qtyPlus');
+  const qtyValue=document.getElementById('qtyValue');
+  const qtyTitle=document.getElementById('qtyTitle');
+  const qtyHelp=document.getElementById('qtyHelp');
+  const lang=()=>localStorage.getItem('edenlyLang')==='en'?'en':'zh';
+  const chosenSize=()=>{const r=document.querySelector('.size-radio:checked');return r?r.value:null};
+  const chosenFlavours=()=>[...document.querySelectorAll('.flavour-check:checked')].map(c=>{const label=document.querySelector(`label[for="${c.id}"] strong`);if(!label)return c.value;const l=lang();return (l==='en'?label.dataset.en:label.dataset.zh)||label.textContent.trim()});
+  const formatDate=(value)=>{if(!value)return '—';const [y,m,d]=value.split('-').map(Number);try{return new Intl.DateTimeFormat(lang()==='en'?'en-GB':'zh-HK',{day:'numeric',month:'short',year:'numeric'}).format(new Date(y,m-1,d,12))}catch(e){return value}};
+  const unitPrice=()=>{const s=chosenSize();return s?priceMap[s]:null};
+  function applyLang(){const en=lang()==='en';qtyTitle.textContent=en?'Quantity':'數量';qtyHelp.textContent=en?'Quantity applies to the same size and flavour combination. For different flavours per tub, tell us on WhatsApp.':'數量會套用同一容量及口味組合；如每盒想揀不同口味，可在 WhatsApp 再註明。';qtyMinus.setAttribute('aria-label',en?'Decrease quantity':'減少數量');qtyPlus.setAttribute('aria-label',en?'Increase quantity':'增加數量');box.querySelector('.quantity-stepper').setAttribute('aria-label',en?'Quantity':'數量')}
+  function syncButtons(){qtyValue.textContent=String(quantity);qtyMinus.disabled=quantity<=1;qtyPlus.disabled=quantity>=99}
+  function syncTotal(){const p=unitPrice();totalBox.textContent=p?`HK$${p*quantity}`:'HK$—'}
+  function syncPreview(){const size=chosenSize();if(!size)return;const p=priceMap[size];const fl=chosenFlavours();const date=pickupDateEl?pickupDateEl.value:'';const time=pickupTimeEl?pickupTimeEl.value:'';if(lang()==='en'){preview.textContent=`Size: ${size}cc (HK$${p} each)\nQuantity: ${quantity} ${quantity===1?'tub':'tubs'}\nFlavours: ${fl.length?fl.join(', '):'—'}\nPickup date: ${formatDate(date)}\nPickup time: ${time||'—'}\nTotal: HK$${p*quantity}`}else{preview.textContent=`容量：${size}cc（每盒 HK$${p}）\n數量：${quantity} 盒\n口味：${fl.length?fl.join('、'):'—'}\n取貨日期：${formatDate(date)}\n取貨時間：${time||'—'}\n總額：HK$${p*quantity}`}}
+  function syncAll(){applyLang();syncButtons();syncTotal();syncPreview()}
+  qtyMinus.addEventListener('click',()=>{if(quantity>1){quantity--;syncAll()}});
+  qtyPlus.addEventListener('click',()=>{if(quantity<99){quantity++;syncAll()}});
+  document.querySelectorAll('.size-radio,.flavour-check').forEach(el=>el.addEventListener('change',()=>setTimeout(syncAll,0)));
+  if(pickupDateEl)pickupDateEl.addEventListener('change',()=>setTimeout(syncAll,0));
+  if(pickupTimeEl)pickupTimeEl.addEventListener('change',()=>setTimeout(syncAll,0));
+  ['z','e'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('click',()=>setTimeout(syncAll,0))});
+  if(resetButton)resetButton.addEventListener('click',()=>{quantity=1;setTimeout(syncAll,0)});
+  waButton.addEventListener('click',(ev)=>{if(waButton.disabled)return;ev.preventDefault();ev.stopImmediatePropagation();const size=chosenSize();const p=size?priceMap[size]:null;const fl=chosenFlavours();const date=pickupDateEl?pickupDateEl.value:'';const time=pickupTimeEl?pickupTimeEl.value:'';if(!size||!p||!fl.length||!date||!time)return;const en=lang()==='en';const message=en?`Hello, I would like to order Edenly Family Size Gelato.\nSize: ${size}cc (HK$${p} each)\nQuantity: ${quantity} ${quantity===1?'tub':'tubs'}\nFlavours: ${fl.join(', ')}\nPickup date: ${formatDate(date)}\nPickup time: ${time}\nTotal: HK$${p*quantity}\nThank you!`:`你好，我想訂購 Edenly 家庭裝 Gelato。\n容量：${size}cc（每盒 HK$${p}）\n數量：${quantity} 盒\n口味：${fl.join('、')}\n取貨日期：${formatDate(date)}\n取貨時間：${time}\n總額：HK$${p*quantity}\n謝謝！`;window.open('https://wa.me/85264698387?text='+encodeURIComponent(message),'_blank','noopener')},true);
+  syncAll();
+})();
+</script>
+'''.encode('utf-8')
+          if b'</body>' not in b: raise SystemExit('Missing </body>')
+          b=b.replace(b'</body>',js+b'</body>',1)
+          p.write_bytes(b)
+          PY
+      - name: Commit changes and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add family.html
+          git rm .github/workflows/add-family-quantity.yml
+          git commit -m "Add quantity selector to family-size orders"
+          git push
