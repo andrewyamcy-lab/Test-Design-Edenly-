@@ -62,6 +62,8 @@ img{display:block;max-width:100%}
 .art-sparkle.a{top:20%;left:13%}.art-sparkle.b{bottom:24%;right:9%;font-size:26px}
 .art-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;text-align:center;text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:700;color:#4d6d52;background:#ffffffe0;border:1px solid #d6e0d0;padding:10px 18px;border-radius:99px;white-space:nowrap;pointer-events:none}
 .flavour-dock{position:absolute;z-index:5;left:50%;bottom:78px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:99px;background:#fffdf9e6;backdrop-filter:blur(14px);box-shadow:0 16px 55px #103b2d21;border:1px solid #ffffffdf}
+.flavour-dock{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s ease,visibility .3s ease}
+.hero-art.mode-3d-active .flavour-dock{opacity:1;visibility:visible;pointer-events:auto}
 .flavour-dock-label{font-size:10px;line-height:1.2;letter-spacing:.1em;color:#577059;font-weight:700;white-space:nowrap;padding:0 8px 0 6px}
 .dock-button{border:1px solid transparent;width:36px;height:36px;border-radius:50%;background:var(--swatch);cursor:pointer;box-shadow:inset 0 -4px 9px #0000001b,0 2px 5px #103b2d17;transition:transform .2s,outline .2s}
 .dock-button:hover{transform:scale(1.13)}
