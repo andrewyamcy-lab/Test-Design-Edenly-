@@ -13,7 +13,7 @@
 <link rel="preload" as="image" href="assets/edenly-product-hero.jpg">
 <link rel="stylesheet" href="assets/edenly-3d.css">
 <title>Edenly Gelato — Small scoop. Big feeling.</title>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js"}}</script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 <script type="module" src="scripts/edenly-3d.js"></script>
 </head>
 <body>
@@ -56,7 +56,7 @@
           <img src="assets/edenly-product-hero.jpg" alt="Edenly Gelato cup filled with matcha and vanilla gelato" fetchpriority="high" width="550" height="700">
           <canvas id="gelato-canvas" aria-hidden="true"></canvas>
         </div>
-        <button class="mode-toggle" id="mode-toggle" type="button" aria-pressed="false" data-en="EXPLORE IN 3D ↗" data-zh="探索 3D 模型 ↗">EXPLORE IN 3D ↗</button>
+        <button class="mode-toggle" id="mode-toggle" type="button" aria-pressed="false" data-en="EXPLORE REAL 3D ↗" data-zh="探索寫實 3D ↗">EXPLORE IN 3D ↗</button>
         <div class="art-stamp" aria-hidden="true">Made<br>with<br>love ♡</div>
         <div class="flavour-dock" role="group" aria-label="Choose gelato flavour">
           <span class="flavour-dock-label" data-en="PICK A FLAVOUR" data-zh="選擇口味">PICK A FLAVOUR</span>
@@ -75,7 +75,7 @@
       <div class="section-kicker reveal" data-en="THE HAPPY LITTLE LINEUP" data-zh="每日好滋味">THE HAPPY LITTLE LINEUP</div>
       <div class="section-head reveal">
         <h2 class="section-title" id="flavour-title" data-en-html="A flavour for&lt;br&gt;&lt;em&gt;every feeling.&lt;/em&gt;" data-zh-html="每種心情，&lt;br&gt;&lt;em&gt;都有專屬口味。&lt;/em&gt;">A flavour for<br><em>every feeling.</em></h2>
-        <p class="section-description" data-en="From familiar favourites to bold little discoveries. Activate 3D mode above to explore each flavour." data-zh="從經典人氣口味到新鮮驚喜。開啟上方的 3D 模式，即可探索不同口味。">From familiar favourites to bold little discoveries. Tap a flavour to transform the 3D cup above.</p>
+        <p class="section-description" data-en="Explore Edenly’s rotating flavours. A photorealistic 3D model of the matcha and vanilla cup is being prepared." data-zh="從經典人氣口味到新鮮驚喜。抹茶及雲呢拿雪糕杯的寫實 3D 模型正在準備中。">Explore Edenly’s rotating flavours. A photorealistic 3D model of the matcha and vanilla cup is being prepared.</p>
       </div>
       <div class="flavour-grid">
         <button class="flavour-card reveal" data-flavour="vanilla" aria-pressed="false" style="--tint:#f7f0df;--orb:#f0d7a9" type="button"><span class="flavour-n">01 / CLASSIC</span><span class="flavour-orb" aria-hidden="true"></span><span class="flavour-bottom"><span><span class="flavour-title" data-en="Vanilla" data-zh="雲呢拿">Vanilla</span><span class="flavour-desc" data-en="Creamy, smooth and timeless." data-zh="細膩柔滑，經典奶香。">Creamy, smooth and timeless.</span></span><span class="flavour-plus" aria-hidden="true">↗</span></span></button>
