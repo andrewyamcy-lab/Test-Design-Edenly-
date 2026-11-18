@@ -45,26 +45,27 @@
           <a class="btn btn-primary" href="#flavours"><span data-en="EXPLORE FLAVOURS" data-zh="探索口味">EXPLORE FLAVOURS</span><span aria-hidden="true">↗</span></a>
           <a class="btn btn-outline" href="family.html"><span data-en="FAMILY SIZE" data-zh="家庭裝訂購">FAMILY SIZE</span><span aria-hidden="true">→</span></a>
         </div>
-        <div class="hero-proof"><div class="mini-mark" aria-hidden="true">e.</div><span data-en="HAPPINESS, ONE<br>SCOOP AT A TIME" data-zh="一杯 GELATO<br>一份小確幸">HAPPINESS, ONE SCOOP AT A TIME</span></div>
+        <div class="hero-proof"><div class="mini-mark" aria-hidden="true">e.</div><span data-en="HAPPINESS, ONE SCOOP AT A TIME" data-zh="一杯 GELATO，一份小確幸">HAPPINESS, ONE SCOOP AT A TIME</span></div>
       </div>
       <div class="hero-art" aria-label="Interactive Edenly Gelato product showcase">
         <div class="art-blob" aria-hidden="true"></div>
         <div class="art-ring" aria-hidden="true"></div>
         <span class="art-sparkle a" aria-hidden="true">✳</span>
         <span class="art-sparkle b" aria-hidden="true">✦</span>
-        <div class="gelato-stage" id="gelato-stage" role="img" aria-label="Rotatable 3D model of an Edenly Gelato cup, with a photograph fallback">
+        <div class="gelato-stage" id="gelato-stage" role="group" aria-label="Edenly Gelato product photo with optional interactive 3D view">
           <img src="assets/edenly-product-hero.jpg" alt="Edenly Gelato cup filled with matcha and vanilla gelato" fetchpriority="high" width="550" height="700">
           <canvas id="gelato-canvas" aria-hidden="true"></canvas>
         </div>
+        <button class="mode-toggle" id="mode-toggle" type="button" aria-pressed="false" data-en="EXPLORE IN 3D ↗" data-zh="探索 3D 模型 ↗">EXPLORE IN 3D ↗</button>
         <div class="art-stamp" aria-hidden="true">Made<br>with<br>love ♡</div>
         <div class="flavour-dock" role="group" aria-label="Choose gelato flavour">
-          <span class="flavour-dock-label" data-en="PICK A<br>FLAVOUR" data-zh="選擇<br>口味">PICK A FLAVOUR</span>
+          <span class="flavour-dock-label" data-en="PICK A FLAVOUR" data-zh="選擇口味">PICK A FLAVOUR</span>
           <button class="dock-button" type="button" data-flavour="matcha" style="--swatch:#85a65b" aria-label="Matcha" aria-pressed="true" title="Matcha"></button>
           <button class="dock-button" type="button" data-flavour="pistachio" style="--swatch:#c2c78c" aria-label="Pistachio" aria-pressed="false" title="Pistachio"></button>
           <button class="dock-button" type="button" data-flavour="vanilla" style="--swatch:#f3ddb1" aria-label="Vanilla" aria-pressed="false" title="Vanilla"></button>
           <button class="dock-button" type="button" data-flavour="oreo" style="--swatch:#7d7a7c" aria-label="Oreo Cookie" aria-pressed="false" title="Oreo Cookie"></button>
         </div>
-        <div class="art-hint" data-en="↔ DRAG TO ROTATE THE CUP" data-zh="↔ 拖動旋轉雪糕杯">↔ DRAG TO ROTATE THE CUP</div>
+        <div class="art-hint" id="art-hint" data-en="REALISTIC GELATO PHOTOGRAPH" data-zh="寫實 GELATO 攝影風格">REALISTIC GELATO PHOTOGRAPH</div>
       </div>
     </div>
   </section>
@@ -74,7 +75,7 @@
       <div class="section-kicker reveal" data-en="THE HAPPY LITTLE LINEUP" data-zh="每日好滋味">THE HAPPY LITTLE LINEUP</div>
       <div class="section-head reveal">
         <h2 class="section-title" id="flavour-title" data-en-html="A flavour for&lt;br&gt;&lt;em&gt;every feeling.&lt;/em&gt;" data-zh-html="每種心情，&lt;br&gt;&lt;em&gt;都有專屬口味。&lt;/em&gt;">A flavour for<br><em>every feeling.</em></h2>
-        <p class="section-description" data-en="From familiar favourites to bold little discoveries. Tap a flavour to transform the 3D cup above." data-zh="從經典人氣口味到新鮮驚喜。按一下口味卡片，即可改變上方 3D 雪糕杯的口味。">From familiar favourites to bold little discoveries. Tap a flavour to transform the 3D cup above.</p>
+        <p class="section-description" data-en="From familiar favourites to bold little discoveries. Activate 3D mode above to explore each flavour." data-zh="從經典人氣口味到新鮮驚喜。開啟上方的 3D 模式，即可探索不同口味。">From familiar favourites to bold little discoveries. Tap a flavour to transform the 3D cup above.</p>
       </div>
       <div class="flavour-grid">
         <button class="flavour-card reveal" data-flavour="vanilla" aria-pressed="false" style="--tint:#f7f0df;--orb:#f0d7a9" type="button"><span class="flavour-n">01 / CLASSIC</span><span class="flavour-orb" aria-hidden="true"></span><span class="flavour-bottom"><span><span class="flavour-title" data-en="Vanilla" data-zh="雲呢拿">Vanilla</span><span class="flavour-desc" data-en="Creamy, smooth and timeless." data-zh="細膩柔滑，經典奶香。">Creamy, smooth and timeless.</span></span><span class="flavour-plus" aria-hidden="true">↗</span></span></button>
