@@ -22,7 +22,7 @@
     document.documentElement.style.setProperty('--flavour', flavours[key].accent);
     buttons.forEach(btn => btn.setAttribute('aria-pressed', String(btn.dataset.flavour === key)));
     onFlavourChange(key);
-    if (fromClick && stage && window.matchMedia('(max-width: 850px)').matches) {
+    if (fromClick && stage?.classList.contains('mode-3d') && window.matchMedia('(max-width: 850px)').matches) {
       stage.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'center'});
     }
   }
@@ -30,7 +30,9 @@
 
   const langButtons = document.querySelectorAll('[data-language]');
   const i18nNodes = document.querySelectorAll('[data-zh][data-en], [data-zh-html][data-en-html]');
+  let currentLanguage = 'en';
   function setLanguage(lang) {
+    currentLanguage = lang;
     const english = lang === 'en';
     document.documentElement.lang = english ? 'en' : 'zh-Hant';
     i18nNodes.forEach(node => {
@@ -47,6 +49,30 @@
   let storedLang = 'en';
   try { storedLang = localStorage.getItem('edenly-language') || 'en'; } catch (_) {}
   setLanguage(storedLang === 'zh' ? 'zh' : 'en');
+
+  // The approved product photograph is the default homepage cover.
+  // Render the interactive 3D cup only if visitors explicitly opt in.
+  const modeToggle = document.getElementById('mode-toggle');
+  const heroHint = document.getElementById('art-hint');
+  let wants3d = false;
+  function syncMode() {
+    const ready = !!stage?.classList.contains('webgl-ready');
+    stage?.classList.toggle('mode-3d', wants3d && ready);
+    if (modeToggle) {
+      modeToggle.setAttribute('aria-pressed', String(wants3d && ready));
+      modeToggle.dataset.en = wants3d ? (ready ? 'SHOW PHOTO ↶' : 'LOADING 3D…') : 'EXPLORE IN 3D ↗';
+      modeToggle.dataset.zh = wants3d ? (ready ? '返回實拍風格照片 ↶' : '正在載入 3D…') : '探索 3D 模型 ↗';
+    }
+    if (heroHint) {
+      heroHint.dataset.en = wants3d && ready ? '↔ DRAG TO ROTATE THE CUP' : 'REALISTIC GELATO PHOTOGRAPH';
+      heroHint.dataset.zh = wants3d && ready ? '↔ 拖動旋轉雪糕杯' : '寫實 GELATO 攝影風格';
+    }
+    setLanguage(currentLanguage);
+  }
+  if (modeToggle) modeToggle.addEventListener('click', () => {
+    wants3d = !wants3d;
+    syncMode();
+  });
 
   const menu = document.querySelector('.nav');
   const menuToggle = document.querySelector('.mobile-toggle');
@@ -79,7 +105,10 @@
     reveals.forEach(node => node.classList.add('is-visible'));
   }
 
-  if (!stage || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!stage || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (modeToggle) modeToggle.hidden = true;
+    return;
+  }
   const canvas = document.getElementById('gelato-canvas');
   if (!canvas) return;
   // The visual and flavour controls still work when WebGL or a CDN is unavailable.
@@ -242,11 +271,14 @@
       model.rotation.z=Math.sin(elapsed*.55)*.025;
       model.position.y=-.24+Math.sin(elapsed*.8)*.075;
       renderer.render(scene,camera);
-      if(!hasRendered){hasRendered=true;stage.classList.add('webgl-ready');}
+      if(!hasRendered){hasRendered=true;stage.classList.add('webgl-ready');syncMode();}
     }
     animate();
   }).catch(err => {
     console.warn('3D preview unavailable; keeping photograph fallback.',err);
     canvas.style.display='none';
+    wants3d=false;
+    syncMode();
+    if(modeToggle){modeToggle.disabled=true;modeToggle.dataset.en='3D NOT AVAILABLE';modeToggle.dataset.zh='目前無法使用 3D';setLanguage(currentLanguage);}
   });
 })();
