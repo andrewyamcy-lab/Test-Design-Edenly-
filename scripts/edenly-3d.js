@@ -58,6 +58,7 @@
   function syncMode() {
     const ready = !!stage?.classList.contains('webgl-ready');
     stage?.classList.toggle('mode-3d', wants3d && ready);
+    stage?.closest('.hero-art')?.classList.toggle('mode-3d-active', wants3d && ready);
     if (modeToggle) {
       modeToggle.setAttribute('aria-pressed', String(wants3d && ready));
       modeToggle.dataset.en = wants3d ? (ready ? 'SHOW PHOTO ↶' : 'LOADING 3D…') : 'EXPLORE IN 3D ↗';
@@ -262,7 +263,7 @@
     let hasRendered=false;
     function animate() {
       requestAnimationFrame(animate);
-      if(!visible||document.hidden) return;
+      if(!visible||document.hidden||(!wants3d && hasRendered)) return;
       const elapsed=clock.getElapsedTime();
       currentY+=(targetY-currentY)*.07;
       currentX+=(targetX-currentX)*.07;
